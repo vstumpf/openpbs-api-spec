@@ -1,0 +1,570 @@
+# if you want to render this, go to https://editor.swagger.io/
+
+openapi: "3.0.2"
+info:
+  title: PBSPro API
+  version: "1.0"
+servers:
+  - url: https://localhost:15010/v1
+paths:
+  /jobs:
+    get:
+      tags:
+        - job
+      summary: Get status of all jobs user has access to
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Job"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    post:
+      tags:
+        - job
+      summary: Submit a new job
+      requestBody:
+        description: Job object that is to be submitted
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewJob"
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/jobResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /jobs/{jobId}:
+    get:
+      tags:
+        - job
+      summary: Get status for a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      responses:
+        200:
+          $ref: "#/components/responses/jobResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    put:
+      tags:
+        - job
+      summary: Alter a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      requestBody:
+        description: Job attributes to update
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Job"
+              description: >
+                Not all attributes must exist, can be a partial object
+                Also, can only alter alterable attributes
+        required: true
+      responses:
+        200:
+          $ref: "#/components/responses/jobResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    delete:
+      tags:
+        - job
+      summary: Delete a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /jobs/{jobId}/holds:
+    get:
+      tags:
+        - job
+      summary: Get holds for a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PBSHolds"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+    post:
+      tags:
+        - job
+      summary: Create hold(s) on a job
+      requestBody:
+        description: Type of hold on job to create
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PBSHolds"
+            example:
+              Hold_Types: u
+        required: true
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PBSHolds"
+              example:
+                Hold_Types: us
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    delete:
+      tags:
+        - job
+      summary: Delete hold(s) on a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+        - in: query
+          name: hold type
+          schema:
+            type: string
+          description: The hold to delete
+          required: true
+          example: u
+      responses:
+        200:
+          description: OK, resulting holds on job
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PBSHolds"
+              example:
+                Hold_Types: n
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /jobs/{jobId}/signals:
+    post:
+      tags:
+        - job
+      summary: Sends a signal to a job
+      parameters:
+        - $ref: "#/components/parameters/jobId"
+      requestBody:
+        description: Signal to send
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                signal:
+                  type: integer
+                  example: 9
+                  description: The singal number to send
+      responses:
+        200:
+          description: OK signal sent
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /vnodes:
+    get:
+      tags:
+        - vnode
+      summary: Get status of all vnodes
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vnode"
+    post:
+      tags:
+        - vnode
+      summary: Create vnode
+      requestBody:
+        description: Vnode object that is to be created
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NewVnode"
+        required: true
+
+      responses:
+        200:
+          $ref: "#/components/responses/vnodeResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /vnodes/{vnodename}:
+    get:
+      tags:
+        - vnode
+      summary: Get status of specific vnode
+      parameters:
+        - $ref: "#/components/parameters/vnodeName"
+      responses:
+        200:
+          $ref: "#/components/responses/vnodeResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    put:
+      tags:
+        - vnode
+      summary: Alter a specific vnode
+      parameters:
+        - $ref: "#/components/parameters/vnodeName"
+      responses:
+        200:
+          $ref: "#/components/responses/vnodeResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    delete:
+      tags:
+        - vnode
+      summary: Get status of specific vnode
+      parameters:
+        - $ref: "#/components/parameters/vnodeName"
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /reservations:
+    get:
+      tags:
+        - reservation
+      summary: Get status of all reservations
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Reservation"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    post:
+      tags:
+        - reservation
+      summary: Create reservation
+      responses:
+        200:
+          $ref: "#/components/responses/reservationResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /reservations/{reservationId}:
+    get:
+      tags:
+        - reservation
+      summary: Get status of specific reservation
+      parameters:
+        - $ref: "#/components/parameters/reservationId"
+      responses:
+        200:
+          $ref: "#/components/responses/reservationResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    put:
+      tags:
+        - reservation
+      summary: Alter a specific reservation
+      parameters:
+        - $ref: "#/components/parameters/reservationId"
+      responses:
+        200:
+          $ref: "#/components/responses/reservationResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    delete:
+      tags:
+        - reservation
+      summary: Delete a specific reservation
+      parameters:
+        - $ref: "#/components/parameters/reservationId"
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /queues:
+    get:
+      tags:
+        - queue
+      summary: Get status of all queues
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Queue"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    post:
+      tags:
+        - queue
+      summary: Create queue
+      responses:
+        200:
+          $ref: "#/components/responses/queueResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+  /queues/{queueName}:
+    get:
+      tags:
+        - queue
+      summary: Get status of specific queue
+      parameters:
+        - $ref: "#/components/parameters/queueName"
+      responses:
+        200:
+          $ref: "#/components/responses/queueResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    put:
+      tags:
+        - queue
+      summary: Alter a specific queue
+      parameters:
+        - $ref: "#/components/parameters/queueName"
+      responses:
+        200:
+          $ref: "#/components/responses/queueResponse"
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+    delete:
+      tags:
+        - queue
+      summary: Delete a specific queue
+      parameters:
+        - $ref: "#/components/parameters/queueName"
+      responses:
+        204:
+          description: OK
+        400:
+          $ref: "#/components/responses/pbserrorResponse"
+
+components:
+  parameters:
+    jobId:
+      name: jobId
+      in: path
+      description: id of job
+      required: true
+      schema:
+        type: string
+      example: 123.serverA
+
+    vnodeName:
+      name: vnodename
+      in: path
+      description: name of vnode
+      required: true
+      schema:
+        type: string
+      example: vnode01
+
+    reservationId:
+      name: reservationId
+      in: path
+      description: id of reservation
+      required: true
+      schema:
+        type: string
+      example: R456.serverA
+
+    queueName:
+      name: queueName
+      in: path
+      description: name of queue
+      required: true
+      schema:
+        type: string
+      example: priorityq
+
+  responses:
+    jobResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Job"
+    vnodeResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Vnode"
+    reservationResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Reservation"
+    queueResponse:
+      description: OK
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/Queue"
+
+    pbserrorResponse:
+      description: Error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PBSError"
+
+  schemas:
+    Job:
+      allOf:
+        - $ref: "#/components/schemas/NewJob"
+        - type: object
+          required:
+            - jobId
+          properties:
+            jobId:
+              type: string
+              example: 123.serverA
+            Hold_Types:
+              type: string
+              example: u
+
+    NewJob:
+      type: object
+      properties:
+        scriptPath:
+          type: string
+          example: myjob.sh
+
+    Vnode:
+      allOf:
+        - $ref: "#/components/schemas/NewVnode"
+        - type: object
+          properties:
+            pbs_version:
+              type: string
+              example: 2021.1.0
+            AttributeNames:
+              type: string
+              example: AttributeValues
+
+    NewVnode:
+      type: object
+      properties:
+        name:
+          type: string
+          example: vnode01
+        hostname:
+          type: string
+          example: vnode01.host
+        ncpus:
+          type: integer
+          example: 8
+        AttributeNames:
+          type: string
+          example: AttributeValues
+
+    PBSError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Unknown Job ID
+        statusCode:
+          type: integer
+          example: 15001
+
+    Reservation:
+      type: object
+      properties:
+        reservationId:
+          type: string
+          example: R456.serverA
+        startTime:
+          type: string
+          format: date-time
+        endTime:
+          type: string
+          format: date-time
+        AttributeNames:
+          type: string
+          example: AttributeValues
+
+    Queue:
+      type: object
+      properties:
+        AttributeNames:
+          type: string
+          example: AttributeValues
+        enabled:
+          type: boolean
+          example: true
+
+    AttributeValue:
+      oneOf:
+        - type: string
+        - type: boolean
+        - type: integer
+          format: int32
+        - type: array
+          items:
+            type: string
+        - type: object
+          properties:
+            ResourceName:
+              $ref: "#/components/schemas/ResourceValue"
+        - $ref: "#/components/schemas/PBSDuration"
+        - $ref: "#/components/schemas/PBSSize"
+
+    ResourceValue:
+      oneOf:
+        - type: boolean
+        - $ref: "#/components/schemas/PBSDuration"
+        - type: number
+          format: float
+        - type: integer
+          format: int64
+        - $ref: "#/components/schemas/PBSSize"
+        - type: string
+        - type: array
+          items:
+            type: string
+
+    PBSDuration:
+      type: string
+      description: A duration in string format
+
+    PBSSize:
+      type: string
+      description: A size in string format
+
+    PBSHolds:
+      type: object
+      properties:
+        Hold_Types:
+          type: string
+          description: Holds on a job
+          example: us
